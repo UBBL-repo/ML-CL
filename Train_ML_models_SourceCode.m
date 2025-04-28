@@ -1,22 +1,7 @@
 clear; clc; close all;
 
 % Data loading (replace with actual data file)
-load 500kHzNC.mat;
-
-% Preprocessing steps (log transform, normalization, etc.)
-T.('Concentration') = concentration;
-T.H2_500kHz = log10(T.H2_500kHz); T.H3_500kHz = log10(T.H3_500kHz); 
-T.H4_500kHz = log10(T.H4_500kHz); T.H5_500kHz = log10(T.H5_500kHz);
-T.H6_500kHz = log10(T.H6_500kHz); T.H7_500kHz = log10(T.H7_500kHz); 
-T.H8_500kHz = log10(T.H8_500kHz); T.U2_500kHz = log10(T.U2_500kHz);
-T.U3_500kHz = log10(T.U3_500kHz); T.U4_500kHz = log10(T.U4_500kHz); 
-T.U5_500kHz = log10(T.U5_500kHz); T.U6_500kHz = log10(T.U6_500kHz);
-T.U7_500kHz = log10(T.U7_500kHz); T.U8_500kHz = log10(T.U8_500kHz);
-T.BB_500kHz = log10(T.BB_500kHz);
-
-T.isControlled =[]; T.whatfrequency = [];
-T.BB_1500kHz = []; T.H2_1500kHz = []; T.H3_1500kHz = [];
-T.H4_1500kHz = []; T.U2_1500kHz = []; T.U3_1500kHz = []; T.U4_1500kHz = [];
+T = readtable('500kHzNC_train.xlsx');
 
 % Define inputs & Labels
 U = [T.U2_500kHz T.U3_500kHz T.U4_500kHz T.U5_500kHz T.U6_500kHz T.U7_500kHz T.U8_500kHz ...
@@ -31,7 +16,7 @@ max_vals = max(U);
 min_vals = min(U);
 [U] = normalize(U, 1, 'range');
 
-Y = T.BB_500kHz > 3.8;
+Y = T.BB_500kHz;
 T.BB_500kHz = [];  % Remove label
 
 % Initialize metrics storage
@@ -49,7 +34,7 @@ Y_test = Y(~train_idx);
 
 %% SMOTE
 disp('Applying SMOTE...');
-[U_smote, Y_smote] = smote(U_train, [5, 1], 'Class', ~logical(Y_train)); % Balance the dataset
+[U_smote, Y_smote] = smote(U_train, [5, 1], 'Class', ~Y_train); % Balance the dataset
 Y_smote = ~Y_smote;
 
 %% No SMOTE (Undersampling)
